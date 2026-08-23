@@ -1,0 +1,18 @@
+{
+  "name": "opencode-context-tui-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenCode TUI sidebar plugin: live context-window usage gauge for the active session",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.18.21",
+    "@opencode-ai/sdk": "^1.18.21",
+    "@opentui/core": "^0.5.6",
+    "@opentui/solid": "^0.5.6",
+    "solid-js": "^1.9.9",
+    "typescript": "^5.9.2"
+  }
+}
