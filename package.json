@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "OpenCode TUI sidebar plugin: live context-window usage gauge for the active session",
+  "license": "MIT",
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

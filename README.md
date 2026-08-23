@@ -77,3 +77,7 @@ Single-file plugin: everything lives in [`src/context-gauge.tsx`](src/context-ga
 ## Credits
 
 Inspired by [streetturtle/opencode-better-sidebar](https://github.com/streetturtle/opencode-better-sidebar) — a great collection of OpenCode sidebar plugins; its `context-progress` plugin planted the seed for this one.
+
+## License
+
+[MIT](LICENSE) © 2026 David Ayers
