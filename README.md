@@ -17,6 +17,14 @@ An [OpenCode](https://opencode.ai) TUI sidebar plugin that shows a live context-
 
 ## Install
 
+```sh
+opencode plugin --global @davidaayers/opencode-context-tui-plugin
+```
+
+or from inside OpenCode: press `ctrl+p` → "Install Plugin" → `@davidaayers/opencode-context-tui-plugin`. The command patches `tui.json` for you; restart OpenCode and the gauge appears in the sidebar once the session has a completed assistant response.
+
+### From source
+
 OpenCode TUI plugins load from the `plugin` array in **`~/.config/opencode/tui.json`** (or a project-level `tui.json`) — *not* from `opencode.jsonc`, whose `plugin` array is server-side only. Adding a TUI-only module to `opencode.jsonc` will make the server fail to load it.
 
 ```jsonc
@@ -28,17 +36,15 @@ OpenCode TUI plugins load from the `plugin` array in **`~/.config/opencode/tui.j
 }
 ```
 
-Restart OpenCode and the gauge appears in the sidebar once the session has a completed assistant response.
-
 ## Configuration
 
-Pass options using the `[spec, options]` tuple form:
+Pass options using the `[spec, options]` tuple form (spec being the npm package name or a `file://` path):
 
 ```jsonc
 {
   "plugin": [
     [
-      "file:///absolute/path/to/opencode-context-tui-plugin/src/context-gauge.tsx",
+      "@davidaayers/opencode-context-tui-plugin",
       {
         "label": "Context",
         "barWidth": 20,
