@@ -23,6 +23,8 @@ opencode plugin --global @davidaayers/opencode-context-tui-plugin
 
 or from inside OpenCode: press `ctrl+p` → "Install Plugin" → `@davidaayers/opencode-context-tui-plugin`. The command patches `tui.json` for you; restart OpenCode and the gauge appears in the sidebar once the session has a completed assistant response.
 
+OpenCode also ships a built-in context section in the sidebar. If you'd rather only see this one, press `ctrl+p` → **Plugins** and toggle the built-in context plugin off — the choice persists across restarts.
+
 ### From source
 
 OpenCode TUI plugins load from the `plugin` array in **`~/.config/opencode/tui.json`** (or a project-level `tui.json`) — *not* from `opencode.jsonc`, whose `plugin` array is server-side only. Adding a TUI-only module to `opencode.jsonc` will make the server fail to load it.
