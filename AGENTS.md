@@ -15,6 +15,10 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single deliverable: `src
 - This module is TUI-side only. It must never be listed in `opencode.jsonc`'s `plugin` array (the server will throw on it); it loads exclusively from `tui.json`.
 - Dependencies are host-provided and resolved at plugin-load time (`@opentui/core`, `@opentui/solid`, `solid-js`, `@opencode-ai/plugin`). Keep the runtime dependency surface empty/minimal — there is no bundler.
 
+## Commits
+
+- Conventional commit style ([conventionalcommits.org](https://www.conventionalcommits.org/en/v1.0.0/)): `feat:`, `fix:`, `docs:`, `chore:` prefixes, imperative mood, concise subject line.
+
 ## Conventions
 
 - Keep everything in the single source file; it exists so installation stays one `file://` path. Split only if it becomes unmanageable, and say so.
