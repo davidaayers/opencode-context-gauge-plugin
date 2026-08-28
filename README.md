@@ -84,6 +84,10 @@ bun run typecheck
 
 Single-file plugin: everything lives in [`src/context-gauge.tsx`](src/context-gauge.tsx).
 
+## Roadmap
+
+Cross-repository follow-up work is tracked in the [OpenCode Plugins project](https://github.com/users/davidaayers/projects/1).
+
 ## Credits
 
 Inspired by [streetturtle/opencode-better-sidebar](https://github.com/streetturtle/opencode-better-sidebar) — a great collection of OpenCode sidebar plugins; its `context-progress` plugin planted the seed for this one.
