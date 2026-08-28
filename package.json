@@ -1,5 +1,5 @@
 {
-  "name": "@davidaayers/opencode-context-tui-plugin",
+  "name": "@davidaayers/opencode-context-gauge-plugin",
   "version": "0.1.0",
   "description": "OpenCode TUI sidebar plugin: live context-window usage gauge for the active session",
   "license": "MIT",
@@ -19,10 +19,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davidaayers/opencode-context-tui-plugin.git"
+    "url": "git+https://github.com/davidaayers/opencode-context-gauge-plugin.git"
   },
-  "bugs": "https://github.com/davidaayers/opencode-context-tui-plugin/issues",
-  "homepage": "https://github.com/davidaayers/opencode-context-tui-plugin#readme",
+  "bugs": "https://github.com/davidaayers/opencode-context-gauge-plugin/issues",
+  "homepage": "https://github.com/davidaayers/opencode-context-gauge-plugin#readme",
   "scripts": {
     "typecheck": "tsc --noEmit"
   },

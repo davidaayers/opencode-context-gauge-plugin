@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "opencode-context-tui-plugin",
+      "name": "opencode-context-gauge-plugin",
       "devDependencies": {
         "@opencode-ai/plugin": "^1.18.21",
         "@opencode-ai/sdk": "^1.18.21",
