@@ -4,7 +4,7 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single deliverable: `src
 
 ## Commands
 
-- `bun run typecheck` — the only check (`tsc --noEmit`). No test runner or linter is configured.
+- `pnpm check` — the only check (`pnpm exec tsc --noEmit`). No test runner or linter is configured.
 - `bun scratch-repro.tsx` — offscreen render harness: mounts JSX via `testRender()` from `@opentui/solid` with a fake api object, then prints captured frames via `setup.captureCharFrame()`. Use this pattern (in a scratch file) to verify rendering headlessly instead of restarting the real TUI. Scratch files are disposable and outside `src/`.
 - Visual changes can't be observed by typecheck alone — render-capture or restart the OpenCode TUI to see them.
 

@@ -1,6 +1,7 @@
 {
   "name": "@davidaayers/opencode-context-gauge-plugin",
   "version": "0.1.0",
+  "packageManager": "pnpm@10.33.0",
   "description": "OpenCode TUI sidebar plugin: live context-window usage gauge for the active session",
   "license": "MIT",
   "type": "module",
@@ -24,7 +25,8 @@
   "bugs": "https://github.com/davidaayers/opencode-context-gauge-plugin/issues",
   "homepage": "https://github.com/davidaayers/opencode-context-gauge-plugin#readme",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "pnpm exec tsc --noEmit",
+    "check": "pnpm typecheck"
   },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.18.21",
