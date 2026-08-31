@@ -7,13 +7,10 @@ settings:
 importers:
 
   .:
-    devDependencies:
+    dependencies:
       '@opencode-ai/plugin':
         specifier: ^1.18.21
         version: 1.18.25(@opentui/core@0.5.9(typescript@5.9.3)(web-tree-sitter@0.25.10))(@opentui/solid@0.5.9(solid-js@1.9.15)(typescript@5.9.3)(web-tree-sitter@0.25.10))
-      '@opencode-ai/sdk':
-        specifier: ^1.18.21
-        version: 1.18.25
       '@opentui/core':
         specifier: ^0.5.6
         version: 0.5.9(typescript@5.9.3)(web-tree-sitter@0.25.10)
@@ -23,6 +20,10 @@ importers:
       solid-js:
         specifier: ^1.9.9
         version: 1.9.15
+    devDependencies:
+      '@opencode-ai/sdk':
+        specifier: ^1.18.21
+        version: 1.18.25
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
