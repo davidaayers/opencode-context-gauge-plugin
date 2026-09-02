@@ -1,6 +1,6 @@
 {
   "name": "@davidaayers/opencode-context-gauge-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "packageManager": "pnpm@10.33.0",
   "description": "OpenCode TUI sidebar plugin: live context-window usage gauge for the active session",
   "license": "MIT",
