@@ -99,11 +99,7 @@ Before the first automated release, configure npm Trusted Publishing for `@david
 - Workflow filename: `release-please.yml`
 - Environment: leave empty
 
-Before enabling the workflow, create a `v0.1.1` GitHub tag at commit `65f68a753babf7f12fe1618ff01ac14c20b5a77f` to establish the baseline for the already-published `0.1.1` package. The existing `0.1.1` tag has no `v` prefix.
-
-Also add a `RELEASE_PLEASE_TOKEN` repository secret containing a GitHub fine-grained token with repository contents, pull request, and issue write access. Release Please needs a non-default token so its release PR and tag events can trigger the intended workflow behavior.
-
-If an npm publish fails after a GitHub release is created, rerun **Release Please** from GitHub Actions using that release's tag, version, and commit SHA. The workflow will retry the same immutable version rather than creating a new release.
+The `v0.1.1` baseline tag is already in place at commit `65f68a753babf7f12fe1618ff01ac14c20b5a77f`.
 
 ## Credits
 
