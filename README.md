@@ -88,6 +88,23 @@ Single-file plugin: everything lives in [`src/context-gauge.tsx`](src/context-ga
 
 Cross-repository follow-up work is tracked in the [OpenCode Plugins project](https://github.com/users/davidaayers/projects/1).
 
+## Releases
+
+Releases are managed by [Release Please](https://github.com/googleapis/release-please) from Conventional Commit messages. Merging a Release Please pull request bumps the version, updates `CHANGELOG.md`, creates the GitHub release and tag, and publishes the package to npm.
+
+Before the first automated release, configure npm Trusted Publishing for `@davidaayers/opencode-context-gauge-plugin` with:
+
+- GitHub organization or user: `davidaayers`
+- Repository: `opencode-context-gauge-plugin`
+- Workflow filename: `release-please.yml`
+- Environment: leave empty
+
+Before enabling the workflow, create a `v0.1.1` GitHub tag at commit `65f68a753babf7f12fe1618ff01ac14c20b5a77f` to establish the baseline for the already-published `0.1.1` package. The existing `0.1.1` tag has no `v` prefix.
+
+Also add a `RELEASE_PLEASE_TOKEN` repository secret containing a GitHub fine-grained token with repository contents, pull request, and issue write access. Release Please needs a non-default token so its release PR and tag events can trigger the intended workflow behavior.
+
+If an npm publish fails after a GitHub release is created, rerun **Release Please** from GitHub Actions using that release's tag, version, and commit SHA. The workflow will retry the same immutable version rather than creating a new release.
+
 ## Credits
 
 Inspired by [streetturtle/opencode-better-sidebar](https://github.com/streetturtle/opencode-better-sidebar) — a great collection of OpenCode sidebar plugins; its `context-progress` plugin planted the seed for this one.

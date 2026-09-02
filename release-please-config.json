@@ -1,0 +1,21 @@
+{
+  "bootstrap-sha": "65f68a753babf7f12fe1618ff01ac14c20b5a77f",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "separate-pull-requests": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "changelog-sections": [
+    { "type": "feat", "section": "Added" },
+    { "type": "fix", "section": "Fixed" },
+    { "type": "perf", "section": "Changed" },
+    { "type": "refactor", "section": "Changed" },
+    { "type": "deps", "section": "Changed" },
+    { "type": "revert", "section": "Reverted" }
+  ],
+  "packages": {
+    ".": {
+      "release-type": "node"
+    }
+  }
+}
