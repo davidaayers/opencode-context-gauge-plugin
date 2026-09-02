@@ -92,6 +92,8 @@ Cross-repository follow-up work is tracked in the [OpenCode Plugins project](htt
 
 Releases are managed by [Release Please](https://github.com/googleapis/release-please) from Conventional Commit messages. Merging a Release Please pull request bumps the version, updates `CHANGELOG.md`, creates the GitHub release and tag, and publishes the package to npm.
 
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 Before the first automated release, configure npm Trusted Publishing for `@davidaayers/opencode-context-gauge-plugin` with:
 
 - GitHub organization or user: `davidaayers`
