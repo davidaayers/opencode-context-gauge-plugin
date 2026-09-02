@@ -1,5 +1,5 @@
 /** @jsxImportSource @opentui/solid */
-import { createMemo, Show } from "solid-js"
+import { createMemo, createSignal, onCleanup, Show } from "solid-js"
 import { TextAttributes } from "@opentui/core"
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule, TuiState } from "@opencode-ai/plugin/tui"
 
@@ -99,9 +99,28 @@ function lastCompletedAssistant(messages: Messages) {
 
 function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved }) {
   const api = props.api
+  const [revision, setRevision] = createSignal(0)
 
-  const session = createMemo(() => api.state.session.get(props.sessionID))
-  const messages = createMemo(() => api.state.session.messages(props.sessionID))
+  const refresh = () => {
+    setRevision((current) => current + 1)
+    api.renderer.requestRender()
+  }
+
+  const offMessage = api.event.on("message.updated", refresh)
+  const offSession = api.event.on("session.updated", refresh)
+  onCleanup(() => {
+    offMessage()
+    offSession()
+  })
+
+  const session = createMemo(() => {
+    revision()
+    return api.state.session.get(props.sessionID)
+  })
+  const messages = createMemo(() => {
+    revision()
+    return api.state.session.messages(props.sessionID)
+  })
   const latest = createMemo(() => lastCompletedAssistant(messages()))
 
   const modelRef = createMemo(() => {
