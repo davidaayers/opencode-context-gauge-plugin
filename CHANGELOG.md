@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.2...v0.1.3) (2026-09-03)
+
+
+### Fixed
+
+* allow release publish retries ([5055c2d](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/5055c2d4e96a58d37a01ccad02ecd5939dcf1f30))
+* exclude cache tokens from context usage ([50f8c3d](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/50f8c3dd0b1e52069858a6c0bbe49a2860a5cb66))
+
 ## [0.1.2](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/0.1.1...v0.1.2) (2026-09-02)
 
 
