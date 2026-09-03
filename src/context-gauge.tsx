@@ -38,8 +38,8 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function tokenTotal(tokens: unknown): number {
-  const t = (tokens ?? {}) as { input?: unknown; output?: unknown; reasoning?: unknown; cache?: { read?: unknown; write?: unknown } }
-  return num(t.input) + num(t.output) + num(t.reasoning) + num(t.cache?.read) + num(t.cache?.write)
+  const t = (tokens ?? {}) as { input?: unknown; output?: unknown; reasoning?: unknown }
+  return num(t.input) + num(t.output) + num(t.reasoning)
 }
 
 function compact(value: number): string {
