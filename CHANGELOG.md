@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.3...v0.1.4) (2026-09-04)
+
+
+### Fixed
+
+* disable pnpm cache during npm publish ([dbaf3c1](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/dbaf3c1e31caa603065bb3d27bf87ca8325b0d2f))
+* use authoritative context token totals ([c3a877d](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/c3a877dbc6344b919ff45121c9d2ff7b18b96f9f))
+
 ## [0.1.3](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.2...v0.1.3) (2026-09-03)
 
 
