@@ -38,7 +38,15 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function tokenTotal(tokens: unknown): number {
-  const t = (tokens ?? {}) as { input?: unknown; output?: unknown; reasoning?: unknown }
+  const t = (tokens ?? {}) as {
+    total?: unknown
+    input?: unknown
+    output?: unknown
+    reasoning?: unknown
+    cache?: { read?: unknown; write?: unknown }
+  }
+  const total = num(t.total)
+  if (total > 0) return total
   return num(t.input) + num(t.output) + num(t.reasoning)
 }
 
@@ -89,10 +97,10 @@ function resolveOptions(raw: unknown): Resolved {
 
 type Messages = ReturnType<TuiState["session"]["messages"]>
 
-function lastCompletedAssistant(messages: Messages) {
+function lastAssistantWithTokens(messages: Messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i]
-    if (m.role === "assistant" && num(m.tokens?.output) > 0) return m
+    if (m.role === "assistant" && tokenTotal(m.tokens) > 0) return m
   }
   return undefined
 }
@@ -121,7 +129,7 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
     revision()
     return api.state.session.messages(props.sessionID)
   })
-  const latest = createMemo(() => lastCompletedAssistant(messages()))
+  const latest = createMemo(() => lastAssistantWithTokens(messages()))
 
   const modelRef = createMemo(() => {
     const m = latest()
