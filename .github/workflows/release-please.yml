@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - closed
   workflow_dispatch:
     inputs:
       tag_name:
@@ -79,3 +82,89 @@ jobs:
         run: |
           npm install --global npm@11.5.1
           npm publish --provenance --access public
+
+  finalize-merged-release:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.ref == 'release-please--branches--main' &&
+      contains(github.event.pull_request.labels.*.name, 'autorelease: pending')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout merged release
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Read release metadata
+        id: metadata
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          PACKAGE="$(node -p "require('./package.json').name")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release and tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.metadata.outputs.tag }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --target "$MERGE_SHA" \
+              --title "$TAG" \
+              --generate-notes
+          fi
+
+      - name: Verify release contents
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          EXPECTED_VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]]; then
+            printf 'Release checkout does not match the merged release commit.\n' >&2
+            exit 1
+          fi
+          if [[ "$(node -p "require('./package.json').version")" != "$EXPECTED_VERSION" ]]; then
+            printf 'Release package version does not match release metadata.\n' >&2
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22.14.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Publish to npm
+        env:
+          PACKAGE: ${{ steps.metadata.outputs.package }}
+          VERSION: ${{ steps.metadata.outputs.version }}
+        run: |
+          set -euo pipefail
+          npm install --global npm@11.5.1
+          if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
+            printf '%s@%s is already published; skipping.\n' "$PACKAGE" "$VERSION"
+          else
+            npm publish --provenance --access public
+          fi
+
+      - name: Mark release PR tagged
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr edit "$PR_NUMBER" \
+            --remove-label 'autorelease: pending' \
+            --add-label 'autorelease: tagged'
