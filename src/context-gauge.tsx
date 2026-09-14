@@ -39,15 +39,12 @@ function clamp(value: number, min: number, max: number): number {
 
 function tokenTotal(tokens: unknown): number {
   const t = (tokens ?? {}) as {
-    total?: unknown
     input?: unknown
     output?: unknown
     reasoning?: unknown
     cache?: { read?: unknown; write?: unknown }
   }
-  const total = num(t.total)
-  if (total > 0) return total
-  return num(t.input) + num(t.output) + num(t.reasoning)
+  return num(t.input) + num(t.output) + num(t.reasoning) + num(t.cache?.read) + num(t.cache?.write)
 }
 
 function compact(value: number): string {
@@ -100,7 +97,7 @@ type Messages = ReturnType<TuiState["session"]["messages"]>
 function lastAssistantWithTokens(messages: Messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i]
-    if (m.role === "assistant" && tokenTotal(m.tokens) > 0) return m
+    if (m.role === "assistant" && num(m.tokens?.output) > 0) return m
   }
   return undefined
 }
