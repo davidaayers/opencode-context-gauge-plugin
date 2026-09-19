@@ -26,8 +26,9 @@
   "bugs": "https://github.com/davidaayers/opencode-context-gauge-plugin/issues",
   "homepage": "https://github.com/davidaayers/opencode-context-gauge-plugin#readme",
   "scripts": {
+    "test": "bun test",
     "typecheck": "pnpm exec tsc --noEmit",
-    "check": "pnpm typecheck"
+    "check": "pnpm test && pnpm typecheck"
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.18.21",
