@@ -2,7 +2,6 @@
 import { createMemo, createSignal, onCleanup, Show } from "solid-js"
 import { TextAttributes } from "@opentui/core"
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule, TuiState } from "@opencode-ai/plugin/tui"
-import { lastAssistantWithTokens, tokenTotal } from "./token-usage"
 
 type GaugeOptions = {
   label?: string | false
@@ -36,6 +35,18 @@ function num(value: unknown): number {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
+}
+
+type Tokens = {
+  input?: unknown
+  output?: unknown
+  reasoning?: unknown
+  cache?: { read?: unknown; write?: unknown }
+}
+
+export function tokenTotal(tokens: unknown): number {
+  const t = (tokens ?? {}) as Tokens
+  return num(t.input) + num(t.output) + num(t.reasoning) + num(t.cache?.read) + num(t.cache?.write)
 }
 
 function compact(value: number): string {
@@ -84,6 +95,18 @@ function resolveOptions(raw: unknown): Resolved {
 }
 
 type Messages = ReturnType<TuiState["session"]["messages"]>
+
+export function lastAssistantWithTokens<T extends { role: string; tokens?: unknown }>(
+  messages: readonly T[],
+): Extract<T, { role: "assistant" }> | undefined {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i]
+    if (message?.role === "assistant" && num((message.tokens as Tokens | undefined)?.output) > 0) {
+      return message as Extract<T, { role: "assistant" }>
+    }
+  }
+  return undefined
+}
 
 function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved }) {
   const api = props.api
