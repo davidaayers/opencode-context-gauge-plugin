@@ -25,6 +25,8 @@ Or from inside OpenCode: press `ctrl+p` → "Install Plugin" → `@davidaayers/o
 
 > **Version 0.1.2 warning:** npm `0.1.2` can overstate context when cache counters are added to an already-aggregated total. Upgrade to the latest release for the fix.
 
+The npm package relies on OpenCode's host-provided Solid/OpenTUI runtime; installing a separate renderer alongside the plugin prevents it from sharing OpenCode's render context.
+
 ### From source
 
 OpenCode TUI plugins load from the `plugin` array in **`~/.config/opencode/tui.json`** (or a project-level `tui.json`) — *not* from `opencode.jsonc`, whose `plugin` array is server-side only. Adding a TUI-only module to `opencode.jsonc` will make the server fail to load it.

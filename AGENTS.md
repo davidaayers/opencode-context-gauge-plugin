@@ -13,7 +13,7 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single deliverable: `src
 - Line 1 of any `.tsx` file must be `/** @jsxImportSource @opentui/solid */`. This is Solid, not React: use `solid-js` primitives (`createMemo`, `Show`), never React imports/hooks. `tsconfig.json` enforces the import source.
 - Module shape: default export `{ id, tui }` satisfying `TuiPluginModule`. The `id` belongs ONLY on the module export — the object passed to `api.slots.register()` forbids `id` (`id?: never`) and will fail typecheck if included.
 - This module is TUI-side only. It must never be listed in `opencode.jsonc`'s `plugin` array (the server will throw on it); it loads exclusively from `tui.json`.
-- Dependencies are host-provided and resolved at plugin-load time (`@opentui/core`, `@opentui/solid`, `solid-js`, `@opencode-ai/plugin`). Keep the runtime dependency surface empty/minimal — there is no bundler.
+- Dependencies are host-provided and resolved at plugin-load time (`@opentui/core`, `@opentui/solid`, `solid-js`, `@opencode-ai/plugin`). Keep these in `devDependencies` only, never `dependencies`: npm installing a second OpenTUI renderer breaks the shared render context (`No renderer found`). Keep the runtime dependency surface empty/minimal — there is no bundler.
 
 ## Commits
 
