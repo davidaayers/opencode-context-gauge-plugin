@@ -6,11 +6,11 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./src/context-gauge.tsx",
-    "./tui": "./src/context-gauge.tsx"
+    ".": "./dist/tui.js",
+    "./tui": "./dist/tui.js"
   },
   "files": [
-    "src/context-gauge.tsx"
+    "dist/tui.js"
   ],
   "keywords": [
     "opencode",
@@ -26,9 +26,12 @@
   "bugs": "https://github.com/davidaayers/opencode-context-gauge-plugin/issues",
   "homepage": "https://github.com/davidaayers/opencode-context-gauge-plugin#readme",
   "scripts": {
-    "test": "bun test",
-    "typecheck": "pnpm exec tsc --noEmit",
-    "check": "pnpm test && pnpm typecheck"
+    "build": "bun build.mjs",
+    "prepack": "bun build.mjs",
+    "test": "bun test src",
+    "test:pack": "bun test --conditions=browser packed-install.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run test && npm run typecheck && npm run test:pack"
   },
   "devDependencies": {
     "@opencode-ai/plugin": "^1.18.21",

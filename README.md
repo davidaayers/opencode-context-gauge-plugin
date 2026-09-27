@@ -25,7 +25,7 @@ Or from inside OpenCode: press `ctrl+p` → "Install Plugin" → `@davidaayers/o
 
 > **Version 0.1.2 warning:** npm `0.1.2` can overstate context when cache counters are added to an already-aggregated total. Upgrade to the latest release for the fix.
 
-The npm package relies on OpenCode's host-provided Solid/OpenTUI runtime; installing a separate renderer alongside the plugin prevents it from sharing OpenCode's render context.
+The npm package ships a compiled TUI entrypoint that shares OpenCode's Solid/OpenTUI renderer.
 
 ### From source
 
@@ -82,11 +82,12 @@ Pass options using the `[spec, options]` tuple form (spec being the npm package 
 ## Development
 
 ```sh
-bun install
-bun run typecheck
+pnpm install
+pnpm check
+pnpm build
 ```
 
-Single-file plugin: everything lives in [`src/context-gauge.tsx`](src/context-gauge.tsx).
+Plugin logic lives in [`src/context-gauge.tsx`](src/context-gauge.tsx). `build.mjs` compiles its JSX to `dist/tui.js` for npm; `prepack` builds it automatically for publishing. From-source installs can still use the `.tsx` file directly.
 
 ## Roadmap
 
