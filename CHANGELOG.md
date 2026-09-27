@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.6...v0.1.7) (2026-09-27)
+
+
+### Fixed
+
+* use host-provided TUI renderer for npm installs ([cd195e5](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/cd195e5eb665121bd12ac48b35ee4bb35b6d8d4f))
+
 ## [0.1.6](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.5...v0.1.6) (2026-09-26)
 
 
