@@ -5,6 +5,14 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.7...v0.1.8) (2026-09-27)
+
+
+### Fixed
+
+* load JSX runtime from host in npm plugin ([da50da5](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/da50da5aa2e41f326e819a1d36079617e649c4ef))
+* publish Solid-transformed TUI plugin ([e353741](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/e353741825bb1077ab6fcd91d1effa92b13f54b7))
+
 ## [0.1.7](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.6...v0.1.7) (2026-09-27)
 
 
