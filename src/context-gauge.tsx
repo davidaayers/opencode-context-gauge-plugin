@@ -1,6 +1,7 @@
 /** @jsxImportSource @opentui/solid */
 import { createMemo, createSignal, onCleanup, Show } from "solid-js"
 import { TextAttributes } from "@opentui/core"
+import { jsx } from "@opentui/solid/jsx-runtime"
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule, TuiState } from "@opencode-ai/plugin/tui"
 
 type GaugeOptions = {
@@ -181,23 +182,37 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
 
   const bar = () => gauge(percent() / 100, props.options.barWidth)
 
-  return (
-    <Show when={contextWindow() > 0}>
-      <box flexDirection="column">
-        <box flexDirection="row">
-          <Show when={props.options.label}>
-            <text fg={api.theme.current.text} attributes={TextAttributes.BOLD}>
-              {`${props.options.label} `}
-            </text>
-          </Show>
-          <text fg={levelColor()}>{bar().fill}</text>
-          <text fg={api.theme.current.textMuted}>{bar().track}</text>
-          <text fg={levelColor()}>{` ${percentLabel(percent())}`}</text>
-        </box>
-        <text fg={api.theme.current.textMuted}>{statsLine()}</text>
-      </box>
-    </Show>
-  )
+  // Explicit runtime calls avoid Bun's implicit jsx-dev-runtime import, which
+  // cannot be resolved from a dependency-free npm plugin package.
+  return jsx(Show as (props: Record<string, unknown>) => unknown, {
+    get when() { return contextWindow() > 0 },
+    get children() {
+      return jsx("box", {
+        flexDirection: "column",
+        children: [
+          jsx("box", {
+            flexDirection: "row",
+            children: [
+              jsx(Show as (props: Record<string, unknown>) => unknown, {
+                when: props.options.label,
+                get children() {
+                  return jsx("text", {
+                    fg: api.theme.current.text,
+                    attributes: TextAttributes.BOLD,
+                    children: `${props.options.label} `,
+                  })
+                },
+              }),
+              jsx("text", { get fg() { return levelColor() }, get children() { return bar().fill } }),
+              jsx("text", { get fg() { return api.theme.current.textMuted }, get children() { return bar().track } }),
+              jsx("text", { get fg() { return levelColor() }, get children() { return ` ${percentLabel(percent())}` } }),
+            ],
+          }),
+          jsx("text", { get fg() { return api.theme.current.textMuted }, get children() { return statsLine() } }),
+        ],
+      })
+    },
+  })
 }
 
 const tui: TuiPlugin = async (api, rawOptions) => {
@@ -207,7 +222,7 @@ const tui: TuiPlugin = async (api, rawOptions) => {
     order: 100,
     slots: {
       sidebar_content(_ctx, slotProps) {
-        return <Gauge api={api} sessionID={slotProps.session_id} options={options} />
+        return jsx(Gauge as (props: Record<string, unknown>) => unknown, { api, sessionID: slotProps.session_id, options })
       },
     },
   })
