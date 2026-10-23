@@ -5,6 +5,15 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v1.0.0...v1.0.1) (2026-10-23)
+
+
+### Fixed
+
+* prepend sidebar gauge and collapse hidden content ([a6f731b](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/a6f731b0040d626b2c4b57c7d4e914576893f789))
+* prepend sidebar gauge and collapse hidden content ([b790e25](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/b790e25abc5200532797ff98cd49b6605563221f))
+* restore automatic release version increments ([#16](https://github.com/davidaayers/opencode-context-gauge-plugin/issues/16)) ([1365132](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/13651326b69af940b449a51e0f26d1861772d100))
+
 ## [1.0.0](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.8...v1.0.0) (2026-10-23)
 
 
