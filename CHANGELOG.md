@@ -5,6 +5,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.8...v1.0.0) (2026-10-23)
+
+
+### Added
+
+* migrate the TUI plugin to OpenCode v2 ([bb7d182](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/bb7d182f05438b3fce409535f9641d4fa15c704a))
+
+
+### Fixed
+
+* support direct local TUI directory loading ([c7f63bc](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/c7f63bc2129420d9ce4181737fdc88bd78fb134b))
+
+
+### Changed
+
+* adopt canonical TUI package template ([b0a96d7](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/b0a96d7b472f0b131078efb5e7ddeaf8ae8779b4))
+
 ## [Unreleased]
 
 ### Breaking Changes
