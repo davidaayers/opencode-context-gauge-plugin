@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/solid */
 import { createMemo, createSignal, onCleanup, Show } from "solid-js"
 import { TextAttributes } from "@opentui/core"
-import type { Plugin } from "@opencode/plugin/tui"
+import { Plugin } from "@opencode/plugin/tui"
 import type { Context as TuiPluginApi } from "@opencode/plugin/tui/context"
 
 type GaugeOptions = {
@@ -199,7 +199,7 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   )
 }
 
-const plugin = {
+export default Plugin.define({
   id: "context-gauge",
   setup(api) {
     const options = resolveOptions(api.options)
@@ -208,6 +208,4 @@ const plugin = {
       render: (props) => <Gauge api={api} sessionID={props.sessionID} options={options} />,
     })
   },
-} satisfies Plugin.Definition
-
-export default plugin
+})

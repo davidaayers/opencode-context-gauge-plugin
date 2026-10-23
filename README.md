@@ -34,17 +34,25 @@ The npm package ships a compiled TUI entrypoint that shares OpenCode's Solid/Ope
 
 ### From source
 
-Run `pnpm install && pnpm build`, then load the compiled entrypoint from the global **`~/.config/opencode/cli.json`**, not the server configuration:
+Run `pnpm install && pnpm build`. The preferred loading path is the package directory in the global **`~/.config/opencode/cli.json`**, not the server configuration:
 
 ```jsonc
 // ~/.config/opencode/cli.json
 {
   "$schema": "https://opencode.ai/v2/cli.json",
   "plugins": [
-    "file:///absolute/path/to/opencode-context-gauge-plugin/dist/tui.js"
+    "/absolute/path/to/opencode-context-gauge-plugin"
   ]
 }
 ```
+
+**OpenCode 2.1.3 fallback:** direct local package loading did not activate the plugin in our live verification. If it does not appear in `/plugins`, remove the direct entry and create `~/.config/opencode/plugins/context-gauge/tui.ts`:
+
+```ts
+export { default } from "/absolute/path/to/opencode-context-gauge-plugin/dist/tui.js"
+```
+
+Restart the TUI and check `/plugins` and the session sidebar. Use either the direct entry or the discovery wrapper, not both.
 
 ## Notes
 
@@ -94,7 +102,7 @@ pnpm check
 pnpm build
 ```
 
-Plugin logic lives in [`src/context-gauge.tsx`](src/context-gauge.tsx). `build.mjs` compiles its JSX to `dist/tui.js` for npm; `prepack` builds it automatically for publishing. From-source installs can still use the `.tsx` file directly.
+Plugin logic lives in `src/tui.tsx`. `build.mjs` compiles its JSX to the uncommitted `dist/tui.js` artifact; `prepack` builds it automatically. The package's sole `./tui` export and the discovery wrapper both target this compiled file, with Solid, OpenTUI, and the plugin API provided by the host.
 
 ## Roadmap
 

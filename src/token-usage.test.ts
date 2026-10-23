@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { lastAssistantWithTokens, tokenTotal } from "./context-gauge"
+import { lastAssistantWithTokens, tokenTotal } from "./tui"
 
 describe("context token usage", () => {
   test("matches OpenCode's built-in cache-inclusive total", () => {

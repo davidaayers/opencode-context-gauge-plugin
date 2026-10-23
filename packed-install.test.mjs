@@ -6,6 +6,7 @@ import { join } from "node:path"
 import { RGBA } from "@opentui/core"
 import { testRender } from "@opentui/solid"
 import { ensureRuntimePluginSupport } from "@opentui/solid/runtime-plugin-support/configure"
+import * as tuiRuntime from "@opencode/plugin/tui"
 
 test("packed npm entrypoint mounts and reacts using the host renderer", async () => {
   const directory = mkdtempSync(join(tmpdir(), "context-gauge-pack-"))
@@ -22,8 +23,13 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     const pkg = JSON.parse(readFileSync(join(installed, "package.json"), "utf8"))
     expect(pkg.dependencies).toBeUndefined()
     expect(pkg.exports["./tui"]).toBe("./dist/tui.js")
+    expect(Object.keys(pkg.exports)).toEqual(["./tui"])
+    expect(pkg.engines.opencode).toBe(">=2.1.3")
+    const built = readFileSync(join(installed, pkg.exports["./tui"]), "utf8")
+    expect(built).toContain('from "@opencode/plugin/tui"')
+    expect(built).not.toMatch(/jsxDEV|jsx-runtime|node_modules\//)
 
-    ensureRuntimePluginSupport()
+    ensureRuntimePluginSupport({ additional: { "@opencode/plugin/tui": tuiRuntime } })
     const plugin = (await import(join(installed, pkg.exports["./tui"]))).default
     let slot = () => undefined
     let output = 100
