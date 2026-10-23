@@ -181,7 +181,7 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   const bar = () => gauge(percent() / 100, props.options.barWidth)
 
   return (
-    <Show when={contextWindow() > 0} fallback={<box />}>
+    <Show when={contextWindow() > 0} fallback={<box visible={false} />}>
       <box flexDirection="column">
         <box flexDirection="row">
           <Show when={props.options.label} fallback={<box />}>
@@ -204,7 +204,7 @@ export default Plugin.define({
   setup(api) {
     const options = resolveOptions(api.options)
     return api.ui.slot({
-      append: "sidebar.content",
+      prepend: "sidebar.content",
       render: (props) => <Gauge api={api} sessionID={props.sessionID} options={options} />,
     })
   },
