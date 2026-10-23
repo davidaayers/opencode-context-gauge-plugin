@@ -28,9 +28,16 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     const built = readFileSync(join(installed, pkg.exports["./tui"]), "utf8")
     expect(built).toContain('from "@opencode/plugin/tui"')
     expect(built).not.toMatch(/jsxDEV|jsx-runtime|node_modules\//)
+    // Local directory targets bypass package exports in OpenCode 2.1.3.
+    const local = Bun.resolveSync(join(import.meta.dir, "tui"), import.meta.dir)
+    expect(local).toBe(join(import.meta.dir, "tui.js"))
+    expect(packed[0].files.map((file) => file.path)).not.toContain("tui.js")
 
     ensureRuntimePluginSupport({ additional: { "@opencode/plugin/tui": tuiRuntime } })
     const plugin = (await import(join(installed, pkg.exports["./tui"]))).default
+    const localPlugin = (await import(local)).default
+    expect(localPlugin.id).toBe(plugin.id)
+    expect(typeof localPlugin.setup).toBe("function")
     let slot = () => undefined
     let output = 100
     const events = new Map()

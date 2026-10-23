@@ -46,13 +46,7 @@ Run `pnpm install && pnpm build`. The preferred loading path is the package dire
 }
 ```
 
-**OpenCode 2.1.3 fallback:** direct local package loading did not activate the plugin in our live verification. If it does not appear in `/plugins`, remove the direct entry and create `~/.config/opencode/plugins/context-gauge/tui.ts`:
-
-```ts
-export { default } from "/absolute/path/to/opencode-context-gauge-plugin/dist/tui.js"
-```
-
-Restart the TUI and check `/plugins` and the session sidebar. Use either the direct entry or the discovery wrapper, not both.
+OpenCode 2.1.3 resolves a local directory's root `tui` entry rather than its package exports. The build generates an ignored root `tui.js` compatibility entry that re-exports `dist/tui.js`; npm installs use the `./tui` export directly. No global discovery wrapper is needed. Remove any old `~/.config/opencode/plugins/context-gauge/tui.ts` wrapper when switching to the direct directory entry so it is not loaded twice.
 
 ## Notes
 
@@ -102,7 +96,7 @@ pnpm check
 pnpm build
 ```
 
-Plugin logic lives in `src/tui.tsx`. `build.mjs` compiles its JSX to the uncommitted `dist/tui.js` artifact; `prepack` builds it automatically. The package's sole `./tui` export and the discovery wrapper both target this compiled file, with Solid, OpenTUI, and the plugin API provided by the host.
+Plugin logic lives in `src/tui.tsx`. `build.mjs` generates the uncommitted `dist/tui.js` artifact and root `tui.js` local-loading bridge; `prepack` builds them automatically. Only `dist` is included in the npm package, whose sole `./tui` export targets the compiled plugin. Solid, OpenTUI, and the plugin API are provided by the host.
 
 ## Roadmap
 

@@ -22,10 +22,17 @@ if (/jsxDEV|jsx-runtime/.test(output) || !/effect as _\$effect/.test(output) || 
 }
 
 mkdirSync("dist", { recursive: true })
-const temporary = `dist/.tui-${process.pid}.js`
-try {
-  writeFileSync(temporary, output)
-  renameSync(temporary, "dist/tui.js")
-} finally {
-  rmSync(temporary, { force: true })
+// Local directory loading in OpenCode 2.1.3 resolves <directory>/tui,
+// whereas npm loading resolves the package's ./tui export.
+for (const [entry, contents] of [
+  ["dist/tui.js", output],
+  ["tui.js", 'export { default } from "./dist/tui.js"\n'],
+]) {
+  const temporary = `${entry}.${process.pid}.tmp`
+  try {
+    writeFileSync(temporary, contents)
+    renameSync(temporary, entry)
+  } finally {
+    rmSync(temporary, { force: true })
+  }
 }

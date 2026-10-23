@@ -15,7 +15,7 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single authored plugin s
 - The npm entrypoint must be Solid-transformed JS, not raw TSX or eager `jsxDEV` calls. Validate a packed install (import, mount, and signal update), not just local source; raw TSX injected an unresolvable `jsx-dev-runtime` in dependency-free npm installs.
 - V2 module shape: default export `Plugin.define({ id, setup })` from `@opencode/plugin/tui`. Register views with `api.ui.slot`, read caches/events from `api.data`, and use `api.theme.text` tokens.
 - This module is CLI-side only. Load it from the global `cli.json` `plugins` array, never the server configuration. V1 `tui.json` is not the V2 config.
-- Direct local package loading did not activate on OpenCode 2.1.3 during live verification. The verified fallback is a global discovery wrapper re-exporting `dist/tui.js`; never combine it with a direct entry for the same plugin.
+- OpenCode 2.1.3 resolves a local directory's root `tui` rather than its exports. The build generates an ignored root `tui.js` re-export of `dist/tui.js` for direct local loading. npm uses `exports["./tui"]` and ships only `dist`. No global discovery wrapper is needed; never load both paths for the same plugin.
 - Renderer dependencies are host-provided (`@opentui/core`, `@opentui/solid`, `solid-js`). Keep these and the runtime `@opencode/plugin` import in `devDependencies` and external to the build: a second renderer breaks the shared render context.
 
 ## Commits
@@ -24,7 +24,7 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single authored plugin s
 
 ## Conventions
 
-- Keep plugin logic in the single source file; `build.mjs` only generates the npm artifact. Local loading must use the compiled artifact, through the package directory or the verified discovery-wrapper fallback.
+- Keep plugin logic in the single source file; `build.mjs` generates the compiled artifact and local-loading bridge. Do not hand-edit or commit either generated file.
 - All incoming option values are untrusted: validate types and clamp ranges (see `resolveOptions`). Follow this for any new option; invalid input falls back to defaults, never throws.
 - Colors come only from V2 `api.theme.text` tokens (base/muted, primary action, warning/error feedback) — no hardcoded ANSI colors.
 - Terminal width math counts emoji/wide glyphs as 2 cells; the sidebar slot is narrow (~30 cols), so account for that when touching layout or labels.
