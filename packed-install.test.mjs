@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { RGBA } from "@opentui/core"
-import { testRender } from "@opentui/solid"
+import { testRender, createElement, insert, setProp } from "@opentui/solid"
 import { ensureRuntimePluginSupport } from "@opentui/solid/runtime-plugin-support/configure"
 import * as tuiRuntime from "@opencode/plugin/tui"
 
@@ -40,15 +40,16 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     expect(typeof localPlugin.setup).toBe("function")
     let slot = () => undefined
     let output = 100
+    let context = 10_000
     const events = new Map()
     const color = RGBA.fromHex("#ffffff")
     const api = {
       options: {},
-      ui: { slot: (entry) => { slot = entry.render; return () => { slot = () => undefined } } },
+      ui: { slot: (entry) => { expect(entry.prepend).toBe("sidebar.content"); expect(entry.append).toBeUndefined(); slot = entry.render; return () => { slot = () => undefined } } },
       theme: { text: { base: color, muted: color, action: { primary: { base: color } }, feedback: { warning: { base: color }, error: { base: color } } } },
       data: {
         listen: (callback) => { events.set("session", callback); return () => events.delete("session") },
-        location: { model: { list: () => [{ id: "model", providerID: "test", limit: { context: 10_000 } }] } },
+        location: { model: { list: () => [{ id: "model", providerID: "test", limit: { context } }] } },
         session: {
           get: () => ({ model: { providerID: "test", id: "model" } }),
           message: { list: () => [{ type: "assistant", model: { providerID: "test", id: "model" }, tokens: { input: 100, output } }] },
@@ -58,11 +59,31 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     }
     const cleanup = await plugin.setup(api)
     expect(plugin.id).toBe("context-gauge")
-    setup = await testRender(() => slot({ sessionID: "test" }), { width: 50, height: 5 })
+    setup = await testRender(() => {
+      const parent = createElement("box")
+      setProp(parent, "flexDirection", "column")
+      setProp(parent, "gap", 1)
+      const before = createElement("text")
+      setProp(before, "content", "BEFORE")
+      const after = createElement("text")
+      setProp(after, "content", "AFTER")
+      insert(parent, before)
+      insert(parent, () => slot({ sessionID: "test" }), null)
+      insert(parent, after)
+      return parent
+    }, { width: 50, height: 9 })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("200 / 10k")
 
     output = 900
+    events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
+    await setup.renderOnce()
+    expect(setup.captureCharFrame()).toContain("1k / 10k")
+    context = 0
+    events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
+    await setup.renderOnce()
+    expect(setup.captureCharFrame().split("\n").map((line) => line.trimEnd()).join("\n").trim()).toBe("BEFORE\n\nAFTER")
+    context = 10_000
     events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("1k / 10k")
