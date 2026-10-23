@@ -10,18 +10,23 @@ An [OpenCode](https://opencode.ai) TUI sidebar plugin that shows a live context-
 ## Features
 
 - **Context gauge** — eighth-block progress bar showing used tokens vs. the active model's context window
-- **Token accounting** — uses the authoritative `total` from the latest assistant message, falling back to component totals and session aggregates
+- **Token accounting** — cache-inclusive component total from the latest assistant response, falling back to session aggregates
 - **Cost display** — session spend alongside token counts (optional)
 - **Threshold colors** — bar turns warning/danger colored as you approach the window limit (theme-aware)
 - **Configurable** — label, bar width, thresholds, cost visibility
 
 ## Install
 
-```sh
-opencode plugin --global @davidaayers/opencode-context-gauge-plugin
+Requires OpenCode **2.1.3 or newer**. Add the package to `~/.config/opencode/cli.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["@davidaayers/opencode-context-gauge-plugin"]
+}
 ```
 
-Or from inside OpenCode: press `ctrl+p` → "Install Plugin" → `@davidaayers/opencode-context-gauge-plugin`. The command patches `tui.json` for you; restart OpenCode and the gauge appears in the sidebar once the session has a completed assistant response.
+Restart OpenCode after installing. The gauge appears once the session has a completed assistant response. V1 releases do not run in V2.
 
 > **Version 0.1.2 warning:** npm `0.1.2` can overstate context when cache counters are added to an already-aggregated total. Upgrade to the latest release for the fix.
 
@@ -29,13 +34,14 @@ The npm package ships a compiled TUI entrypoint that shares OpenCode's Solid/Ope
 
 ### From source
 
-OpenCode TUI plugins load from the `plugin` array in **`~/.config/opencode/tui.json`** (or a project-level `tui.json`) — *not* from `opencode.jsonc`, whose `plugin` array is server-side only. Adding a TUI-only module to `opencode.jsonc` will make the server fail to load it.
+Run `pnpm install && pnpm build`, then load the compiled entrypoint from the global **`~/.config/opencode/cli.json`**, not the server configuration:
 
 ```jsonc
-// ~/.config/opencode/tui.json
+// ~/.config/opencode/cli.json
 {
-  "plugin": [
-    "file:///absolute/path/to/opencode-context-gauge-plugin/src/context-gauge.tsx"
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": [
+    "file:///absolute/path/to/opencode-context-gauge-plugin/dist/tui.js"
   ]
 }
 ```
@@ -46,21 +52,22 @@ OpenCode also ships a built-in context section in the sidebar. If you'd rather o
 
 ## Configuration
 
-Pass options using the `[spec, options]` tuple form (spec being the npm package name or a `file://` path):
+Pass options using the object form (package name or a `file://` path):
 
 ```jsonc
 {
-  "plugin": [
-    [
-      "@davidaayers/opencode-context-gauge-plugin",
-      {
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": [
+    {
+      "package": "@davidaayers/opencode-context-gauge-plugin",
+      "options": {
         "label": "Context",
         "barWidth": 20,
         "warnAt": 70,
         "dangerAt": 90,
         "showCost": true
       }
-    ]
+    }
   ]
 }
 ```
@@ -76,8 +83,8 @@ Pass options using the `[spec, options]` tuple form (spec being the npm package 
 ## How It Works
 
 - **Used tokens**: matches OpenCode's built-in context section: the most recent assistant message with output uses `input + output + reasoning + cache.read + cache.write`. Before any responses exist, session-level token/cost aggregates are used.
-- **Context window**: resolved from the message's (or session's) provider/model via `provider.models[modelID].limit.context`. The widget hides itself if no context limit is known.
-- **Rendering**: SolidJS JSX via `@opentui/solid`, registered into the `sidebar_content` slot through [`@opencode-ai/plugin/tui`](https://www.npmjs.com/package/@opencode-ai/plugin). Colors come from the active OpenCode theme (`accent` / `warning` / `error`).
+- **Context window**: resolved from the location's model catalog using the message's (or session's) model reference. The widget hides itself if no context limit is known.
+- **Rendering**: SolidJS JSX via `@opentui/solid`, registered into V2's `sidebar.content` slot through `@opencode/plugin/tui`. Colors come from the active OpenCode theme.
 
 ## Development
 

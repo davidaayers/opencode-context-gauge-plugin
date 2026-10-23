@@ -13,9 +13,9 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single authored plugin s
 
 - Line 1 of any `.tsx` file must be `/** @jsxImportSource @opentui/solid */`. This is Solid, not React: use `solid-js` primitives (`createMemo`, `Show`), never React imports/hooks. `tsconfig.json` enforces the import source.
 - The npm entrypoint must be Solid-transformed JS, not raw TSX or eager `jsxDEV` calls. Validate a packed install (import, mount, and signal update), not just local source; raw TSX injected an unresolvable `jsx-dev-runtime` in dependency-free npm installs.
-- Module shape: default export `{ id, tui }` satisfying `TuiPluginModule`. The `id` belongs ONLY on the module export — the object passed to `api.slots.register()` forbids `id` (`id?: never`) and will fail typecheck if included.
-- This module is TUI-side only. It must never be listed in `opencode.jsonc`'s `plugin` array (the server will throw on it); it loads exclusively from `tui.json`.
-- Renderer dependencies are host-provided and resolved at plugin-load time (`@opentui/core`, `@opentui/solid`, `solid-js`, `@opencode-ai/plugin`). Keep these in `devDependencies` only and external to the build: installing or bundling a second OpenTUI renderer breaks the shared render context (`No renderer found`).
+- V2 module shape: default export `{ id, setup }` satisfying `Plugin.Definition` from `@opencode/plugin/tui`. Register views with `api.ui.slot`, read caches/events from `api.data`, and use `api.theme.text` tokens.
+- This module is CLI-side only. Load it from the global `cli.json` `plugins` array, never the server configuration. V1 `tui.json` is not the V2 config.
+- Renderer dependencies are host-provided (`@opentui/core`, `@opentui/solid`, `solid-js`). Keep these and the type-only `@opencode/plugin` in `devDependencies` and external to the build: a second renderer breaks the shared render context.
 
 ## Commits
 
@@ -25,6 +25,6 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single authored plugin s
 
 - Keep plugin logic in the single source file; `build.mjs` only generates the npm artifact. The source remains installable via one `file://` path.
 - All incoming option values are untrusted: validate types and clamp ranges (see `resolveOptions`). Follow this for any new option; invalid input falls back to defaults, never throws.
-- Colors come only from theme tokens via `api.theme.current` (`accent`, `warning`, `error`, `text`, `textMuted`) — no hardcoded ANSI colors.
+- Colors come only from V2 `api.theme.text` tokens (base/muted, primary action, warning/error feedback) — no hardcoded ANSI colors.
 - Terminal width math counts emoji/wide glyphs as 2 cells; the sidebar slot is narrow (~30 cols), so account for that when touching layout or labels.
 - TypeScript is strict with `verbatimModuleSyntax` — use `import type` for type-only imports.

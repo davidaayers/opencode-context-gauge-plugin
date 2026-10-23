@@ -30,27 +30,33 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     const events = new Map()
     const color = RGBA.fromHex("#ffffff")
     const api = {
-      slots: { register: (entry) => { slot = entry.slots.sidebar_content } },
-      event: { on: (name, callback) => { events.set(name, callback); return () => events.delete(name) } },
-      theme: { current: { accent: color, warning: color, error: color, text: color, textMuted: color } },
-      state: {
-        provider: [{ id: "test", models: { model: { limit: { context: 10_000 } } } }],
+      options: {},
+      ui: { slot: (entry) => { slot = entry.render; return () => { slot = () => undefined } } },
+      theme: { text: { base: color, muted: color, action: { primary: { base: color } }, feedback: { warning: { base: color }, error: { base: color } } } },
+      data: {
+        listen: (callback) => { events.set("session", callback); return () => events.delete("session") },
+        location: { model: { list: () => [{ id: "model", providerID: "test", limit: { context: 10_000 } }] } },
         session: {
           get: () => ({ model: { providerID: "test", id: "model" } }),
-          messages: () => [{ role: "assistant", providerID: "test", modelID: "model", tokens: { input: 100, output } }],
+          message: { list: () => [{ type: "assistant", model: { providerID: "test", id: "model" }, tokens: { input: 100, output } }] },
         },
       },
       renderer: { requestRender: () => {} },
     }
-    await plugin.tui(api)
-    setup = await testRender(() => slot({}, { session_id: "test" }), { width: 50, height: 5 })
+    const cleanup = await plugin.setup(api)
+    expect(plugin.id).toBe("context-gauge")
+    setup = await testRender(() => slot({ sessionID: "test" }), { width: 50, height: 5 })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("200 / 10k")
 
     output = 900
-    events.get("message.updated")?.()
+    events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("1k / 10k")
+    cleanup()
+    setup.renderer.destroy()
+    setup = undefined
+    expect(events.size).toBe(0)
   } finally {
     setup?.renderer.destroy()
     rmSync(directory, { recursive: true, force: true })
