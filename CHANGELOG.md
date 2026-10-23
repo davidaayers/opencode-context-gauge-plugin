@@ -5,6 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Breaking Changes
+
+- Prepare 1.0.0 for OpenCode 2.x only (minimum 2.1.3; OpenCode 3.x is not supported).
+- Replace the V1 plugin API and configuration with `Plugin.define` and global `cli.json` loading.
+- OpenCode 1.x users must pin `@davidaayers/opencode-context-gauge-plugin@0.1.8`, the last V1 release.
+
+### Changed
+
+- Standardize the Solid-transformed `src/tui.tsx` build, host-provided runtimes, packed verification, and generated local-directory entry.
+
 ## [0.1.8](https://github.com/davidaayers/opencode-context-gauge-plugin/compare/v0.1.7...v0.1.8) (2026-09-27)
 
 
@@ -58,8 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 * refresh context gauge on session updates ([24d162a](https://github.com/davidaayers/opencode-context-gauge-plugin/commit/24d162adf2effc7355f4428b217756494d2e7edc))
-
-## [Unreleased]
 
 ## [0.1.1] - 2026-09-02
 

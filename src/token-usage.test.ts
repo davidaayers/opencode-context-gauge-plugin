@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { lastAssistantWithTokens, tokenTotal } from "./context-gauge"
+import { lastAssistantWithTokens, tokenTotal } from "./tui"
 
 describe("context token usage", () => {
   test("matches OpenCode's built-in cache-inclusive total", () => {
@@ -15,9 +15,9 @@ describe("context token usage", () => {
 
   test("uses the latest completed assistant message", () => {
     const messages = [
-      { role: "assistant", tokens: { input: 100, output: 20, cache: { read: 1000, write: 0 } } },
-      { role: "assistant", tokens: { input: 900, output: 0, cache: { read: 9000, write: 0 } } },
-      { role: "assistant", tokens: { input: 200, output: 30, cache: { read: 2000, write: 0 } } },
+      { type: "assistant", tokens: { input: 100, output: 20, cache: { read: 1000, write: 0 } } },
+      { type: "assistant", tokens: { input: 900, output: 0, cache: { read: 9000, write: 0 } } },
+      { type: "assistant", tokens: { input: 200, output: 30, cache: { read: 2000, write: 0 } } },
     ] as const
 
     expect(lastAssistantWithTokens(messages)).toBe(messages[2])

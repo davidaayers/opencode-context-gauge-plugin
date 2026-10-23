@@ -1,7 +1,8 @@
 /** @jsxImportSource @opentui/solid */
 import { createMemo, createSignal, onCleanup, Show } from "solid-js"
 import { TextAttributes } from "@opentui/core"
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule, TuiState } from "@opencode-ai/plugin/tui"
+import { Plugin } from "@opencode/plugin/tui"
+import type { Context as TuiPluginApi } from "@opencode/plugin/tui/context"
 
 type GaugeOptions = {
   label?: string | false
@@ -94,15 +95,13 @@ function resolveOptions(raw: unknown): Resolved {
   }
 }
 
-type Messages = ReturnType<TuiState["session"]["messages"]>
-
-export function lastAssistantWithTokens<T extends { role: string; tokens?: unknown }>(
+export function lastAssistantWithTokens<T extends { type: string; tokens?: unknown }>(
   messages: readonly T[],
-): Extract<T, { role: "assistant" }> | undefined {
+): Extract<T, { type: "assistant" }> | undefined {
   for (let i = messages.length - 1; i >= 0; i--) {
     const message = messages[i]
-    if (message?.role === "assistant" && num((message.tokens as Tokens | undefined)?.output) > 0) {
-      return message as Extract<T, { role: "assistant" }>
+    if (message?.type === "assistant" && num((message.tokens as Tokens | undefined)?.output) > 0) {
+      return message as Extract<T, { type: "assistant" }>
     }
   }
   return undefined
@@ -117,26 +116,26 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
     api.renderer.requestRender()
   }
 
-  const offMessage = api.event.on("message.updated", refresh)
-  const offSession = api.event.on("session.updated", refresh)
+  const offSession = api.data.listen(({ details }) => {
+    if ("sessionID" in details.data && details.data.sessionID === props.sessionID) refresh()
+  })
   onCleanup(() => {
-    offMessage()
     offSession()
   })
 
   const session = createMemo(() => {
     revision()
-    return api.state.session.get(props.sessionID)
+    return api.data.session.get(props.sessionID)
   })
   const messages = createMemo(() => {
     revision()
-    return api.state.session.messages(props.sessionID)
+    return api.data.session.message.list(props.sessionID)
   })
   const latest = createMemo(() => lastAssistantWithTokens(messages()))
 
   const modelRef = createMemo(() => {
     const m = latest()
-    if (m) return { providerID: m.providerID, modelID: m.modelID }
+    if (m) return { providerID: m.model.providerID, modelID: m.model.id }
     const model = session()?.model
     return model ? { providerID: model.providerID, modelID: model.id } : undefined
   })
@@ -144,8 +143,8 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   const contextWindow = createMemo(() => {
     const ref = modelRef()
     if (!ref) return 0
-    const provider = api.state.provider.find((p) => p.id === ref.providerID)
-    return num(provider?.models?.[ref.modelID]?.limit?.context)
+    const model = api.data.location.model.list(session()?.location)?.find((m) => m.providerID === ref.providerID && m.id === ref.modelID)
+    return num(model?.limit.context)
   })
 
   const usedTokens = createMemo(() => {
@@ -157,7 +156,7 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   const cost = createMemo(() => {
     const aggregate = num(session()?.cost)
     if (aggregate > 0) return aggregate
-    return messages().reduce((sum, m) => (m.role === "assistant" ? sum + num(m.cost) : sum), 0)
+    return messages().reduce((sum, m) => (m.type === "assistant" ? sum + num(m.cost) : sum), 0)
   })
 
   const percent = createMemo(() => {
@@ -166,11 +165,11 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   })
 
   const levelColor = () => {
-    const t = api.theme.current
+    const t = api.theme
     const p = percent()
-    if (p >= props.options.dangerAt) return t.error
-    if (p >= props.options.warnAt) return t.warning
-    return t.accent
+    if (p >= props.options.dangerAt) return t.text.feedback.error.base
+    if (p >= props.options.warnAt) return t.text.feedback.warning.base
+    return t.text.action.primary.base
   }
 
   const statsLine = () => {
@@ -182,40 +181,31 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
   const bar = () => gauge(percent() / 100, props.options.barWidth)
 
   return (
-    <Show when={contextWindow() > 0}>
+    <Show when={contextWindow() > 0} fallback={<box />}>
       <box flexDirection="column">
         <box flexDirection="row">
-          <Show when={props.options.label}>
-            <text fg={api.theme.current.text} attributes={TextAttributes.BOLD}>
+          <Show when={props.options.label} fallback={<box />}>
+            <text fg={api.theme.text.base} attributes={TextAttributes.BOLD}>
               {`${props.options.label} `}
             </text>
           </Show>
           <text fg={levelColor()}>{bar().fill}</text>
-          <text fg={api.theme.current.textMuted}>{bar().track}</text>
+          <text fg={api.theme.text.muted}>{bar().track}</text>
           <text fg={levelColor()}>{` ${percentLabel(percent())}`}</text>
         </box>
-        <text fg={api.theme.current.textMuted}>{statsLine()}</text>
+        <text fg={api.theme.text.muted}>{statsLine()}</text>
       </box>
     </Show>
   )
 }
 
-const tui: TuiPlugin = async (api, rawOptions) => {
-  const options = resolveOptions(rawOptions)
-
-  api.slots.register({
-    order: 100,
-    slots: {
-      sidebar_content(_ctx, slotProps) {
-        return <Gauge api={api} sessionID={slotProps.session_id} options={options} />
-      },
-    },
-  })
-}
-
-const plugin: TuiPluginModule & { id: string } = {
+export default Plugin.define({
   id: "context-gauge",
-  tui,
-}
-
-export default plugin
+  setup(api) {
+    const options = resolveOptions(api.options)
+    return api.ui.slot({
+      append: "sidebar.content",
+      render: (props) => <Gauge api={api} sessionID={props.sessionID} options={options} />,
+    })
+  },
+})
