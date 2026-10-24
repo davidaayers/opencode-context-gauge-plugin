@@ -91,8 +91,8 @@ jobs:
         if: ${{ steps.release.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
         run: |
           npm install --global npm@11.5.1
-          npm install --ignore-scripts --no-package-lock --no-audit --no-fund
-          npm run check
+          pnpm install --frozen-lockfile
+          pnpm check
           npm publish --provenance --access public
 
   finalize-merged-release:
@@ -177,8 +177,8 @@ jobs:
           if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
             printf '%s@%s is already published; skipping.\n' "$PACKAGE" "$VERSION"
           else
-            npm install --ignore-scripts --no-package-lock --no-audit --no-fund
-            npm run check
+            pnpm install --frozen-lockfile
+            pnpm check
             npm publish --provenance --access public
           fi
 
