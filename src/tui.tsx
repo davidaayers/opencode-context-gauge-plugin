@@ -20,9 +20,11 @@ type Resolved = {
   showCost: boolean
 }
 
+// Match the total gauge-row allocation in the Codex and Go usage plugins.
+const LAYOUT_WIDTH = 32
 const DEFAULTS: Resolved = {
   label: "🧠",
-  barWidth: 20,
+  barWidth: LAYOUT_WIDTH - 8, // emoji + space (3), space + percentage (5)
   warnAt: 70,
   dangerAt: 90,
   showCost: true,
@@ -189,9 +191,11 @@ function Gauge(props: { api: TuiPluginApi; sessionID: string; options: Resolved 
               {`${props.options.label} `}
             </text>
           </Show>
-          <text fg={levelColor()}>{bar().fill}</text>
-          <text fg={api.theme.text.muted}>{bar().track}</text>
-          <text fg={levelColor()}>{` ${percentLabel(percent())}`}</text>
+          <text width={props.options.barWidth} flexShrink={0}>
+            <span style={{ fg: levelColor() }}>{bar().fill}</span>
+            <span style={{ fg: api.theme.text.muted }}>{bar().track}</span>
+          </text>
+          <text fg={levelColor()}>{` ${percentLabel(percent()).padStart(4)}`}</text>
         </box>
         <text fg={api.theme.text.muted}>{statsLine()}</text>
       </box>

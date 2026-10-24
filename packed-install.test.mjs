@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test"
 import { execFileSync } from "node:child_process"
-import { mkdtempSync, readFileSync, rmSync } from "node:fs"
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { RGBA } from "@opentui/core"
@@ -11,6 +11,15 @@ import * as tuiRuntime from "@opencode/plugin/tui"
 test("packed npm entrypoint mounts and reacts using the host renderer", async () => {
   const directory = mkdtempSync(join(tmpdir(), "context-gauge-pack-"))
   let setup
+  const frames = {}
+  const expectGauge = (name, percent, barWidth = 24) => {
+    const frame = setup.captureCharFrame()
+    frames[name] = frame
+    const row = frame.split("\n").find((line) => line.includes("🧠"))?.trimEnd()
+    expect(row).toBeDefined()
+    expect(row.replace("🧠", "..").length).toBe(barWidth + 8)
+    expect(row.endsWith(` ${percent.padStart(4)}`)).toBe(true)
+  }
   try {
     const packed = JSON.parse(execFileSync("npm", ["pack", "--json", "--pack-destination", directory], {
       cwd: import.meta.dir,
@@ -40,6 +49,7 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     expect(typeof localPlugin.setup).toBe("function")
     let slot = () => undefined
     let output = 100
+    let input = 100
     let context = 10_000
     const events = new Map()
     const color = RGBA.fromHex("#ffffff")
@@ -51,8 +61,8 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
         listen: (callback) => { events.set("session", callback); return () => events.delete("session") },
         location: { model: { list: () => [{ id: "model", providerID: "test", limit: { context } }] } },
         session: {
-          get: () => ({ model: { providerID: "test", id: "model" } }),
-          message: { list: () => [{ type: "assistant", model: { providerID: "test", id: "model" }, tokens: { input: 100, output } }] },
+          get: () => ({ model: { providerID: "test", id: "model" }, tokens: { input, output } }),
+          message: { list: () => [{ type: "assistant", model: { providerID: "test", id: "model" }, tokens: { input, output } }] },
         },
       },
       renderer: { requestRender: () => {} },
@@ -71,14 +81,25 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
       insert(parent, () => slot({ sessionID: "test" }), null)
       insert(parent, after)
       return parent
-    }, { width: 50, height: 9 })
+    }, { width: 37, height: 9 })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("200 / 10k")
+    expectGauge("two-percent", "2%")
 
     output = 900
     events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
     await setup.renderOnce()
     expect(setup.captureCharFrame()).toContain("1k / 10k")
+    expectGauge("ten-percent", "10%")
+    for (const [value, label] of [[0, "0%"], [10_000, "100%"]]) {
+      input = 0
+      output = value
+      events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
+      await setup.renderOnce()
+      expectGauge(label, label)
+    }
+    input = 100
+    output = 900
     context = 0
     events.get("session")?.({ details: { type: "session.usage.updated", data: { sessionID: "test" } } })
     await setup.renderOnce()
@@ -91,7 +112,23 @@ test("packed npm entrypoint mounts and reacts using the host renderer", async ()
     setup.renderer.destroy()
     setup = undefined
     expect(events.size).toBe(0)
+    for (const [barWidth, expected] of [[20, 20], ["invalid", 24]]) {
+      const stop = await plugin.setup({ ...api, options: { barWidth } })
+      try {
+        setup = await testRender(() => slot({ sessionID: "test" }), { width: 37, height: 3 })
+        await setup.renderOnce()
+        expectGauge(`bar-width-${barWidth}`, "10%", expected)
+      } finally {
+        setup?.renderer.destroy()
+        setup = undefined
+        stop()
+      }
+      expect(events.size).toBe(0)
+    }
   } finally {
+    if (process.env.OPENCODE_TEST_EVIDENCE_DIR) {
+      writeFileSync(join(process.env.OPENCODE_TEST_EVIDENCE_DIR, "context-packed-frames.json"), JSON.stringify(frames, null, 2))
+    }
     setup?.renderer.destroy()
     rmSync(directory, { recursive: true, force: true })
   }

@@ -27,5 +27,5 @@ OpenCode **TUI-only** sidebar plugin (SolidJS/OpenTUI). Single authored plugin s
 - Keep plugin logic in the single source file; `build.mjs` generates the compiled artifact and local-loading bridge. Do not hand-edit or commit either generated file.
 - All incoming option values are untrusted: validate types and clamp ranges (see `resolveOptions`). Follow this for any new option; invalid input falls back to defaults, never throws.
 - Colors come only from V2 `api.theme.text` tokens (base/muted, primary action, warning/error feedback) — no hardcoded ANSI colors.
-- Terminal width math counts emoji/wide glyphs as 2 cells; the sidebar slot is narrow (~30 cols), so account for that when touching layout or labels.
+- Terminal width math counts emoji/wide glyphs as 2 cells. The default gauge row uses 32 cells (emoji + space: 3, bar: 24, space + padded percentage: 5), matching the Codex and Go plugins. Custom label/barWidth options may change that width.
 - TypeScript is strict with `verbatimModuleSyntax` — use `import type` for type-only imports.
